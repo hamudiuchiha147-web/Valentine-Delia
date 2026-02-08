@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Für Delia 💖</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg,#ff9a9e,#fad0c4);
+  min-height: 100vh;
+  text-align: center;
+  overflow-x: hidden;
+}
+
+#fireworks {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.container {
+  background: white;
+  margin: 40px auto;
+  padding: 30px;
+  max-width: 420px;
+  border-radius: 25px;
+  box-shadow: 0 0 25px rgba(0,0,0,0.2);
+  animation: fadeIn 2s;
+}
+
+h1 {
+  color: #e91e63;
+  font-size: 2.5em;
+}
+
+img {
+  width: 100%;
+  border-radius: 20px;
+  margin: 15px 0;
+}
+
+p {
+  font-size: 1.1em;
+  color: #444;
+}
+
+#countdown {
+  font-weight: bold;
+  color: #e91e63;
+  margin: 15px 0;
+}
+
+button {
+  background: #ff4d6d;
+  border: none;
+  color: white;
+  padding: 15px 25px;
+  font-size: 1.1em;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: 0.3s;
+  margin: 5px;
+}
+
+button:hover {
+  background: #e91e63;
+  transform: scale(1.05);
+}
+
+.heart {
+  position: fixed;
+  color: #ff4d6d;
+  font-size: 20px;
+  animation: float 6s linear infinite;
+  opacity: 0.7;
+}
+
+@keyframes float {
+  from { transform: translateY(100vh); }
+  to { transform: translateY(-10vh); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="fireworks"></canvas>
+
+<!-- Musik -->
+<audio autoplay loop>
+  <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8bfaea4c7.mp3" type="audio/mpeg">
+</audio>
+
+<div class="container">
+
+<h1 id="name">Delia 💕</h1>
+
+<!-- Platzhalter Foto -->
+<img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e" alt="Love">
+
+<p>
+Delia, seitdem du in meinem Leben bist, ist jeder Tag heller,
+wärmer und schöner.<br><br>
+Dein Lächeln ist mein Lieblingsort.
+Ich bin so dankbar für dich. 💖
+</p>
+
+<div id="countdown"></div>
+
+<div style="margin-top:20px;">
+
+<p><strong>Willst du mein Valentin sein? 💘</strong></p>
+
+<button onclick="yesAnswer()" id="yesBtn">
+💖 Ja!
+</button>
+
+<button id="noBtn">
+💔 Nein
+</button>
+
+</div>
+
+<p id="result"></p>
+
+</div>
+
+<script>
+
+// Name aus URL
+const params = new URLSearchParams(window.location.search);
+const name = params.get("name");
+if(name){
+  document.getElementById("name").textContent = name + " 💕";
+}
+
+// Countdown
+const valentines = new Date("February 14, 2026 00:00:00").getTime();
+
+setInterval(() => {
+  const now = new Date().getTime();
+  const distance = valentines - now;
+
+  const days = Math.floor(distance / (1000*60*60*24));
+  const hours = Math.floor((distance%(1000*60*60*24))/(1000*60*60));
+
+  document.getElementById("countdown").innerHTML =
+    "💘 Noch " + days + " Tage und " + hours + " Stunden bis Valentinstag";
+},1000);
+
+// JA Button ❤️
+function yesAnswer(){
+
+  document.getElementById("result").innerHTML =
+    "JA!!! 😍💖💍<br>Ich liebe dich für immer!";
+
+  startFireworks();
+
+  for(let i=0;i<40;i++){
+    createHeart();
+  }
+}
+
+// Drama-Nein-Button 😭
+const noBtn = document.getElementById("noBtn");
+
+const noTexts = [
+  "💔 Nein",
+  "Bist du sicher? 😳",
+  "Wirklich? 🥺",
+  "Bitteee 😭",
+  "Ok… klick Ja 💖"
+];
+
+let noCount = 0;
+
+function moveButton(){
+
+  noBtn.textContent = noTexts[noCount];
+  noCount = (noCount + 1) % noTexts.length;
+
+  const x = Math.random() * (window.innerWidth - 120);
+  const y = Math.random() * (window.innerHeight - 60);
+
+  noBtn.style.position = "fixed";
+  noBtn.style.left = x + "px";
+  noBtn.style.top = y + "px";
+}
+
+noBtn.addEventListener("mouseover", moveButton);
+noBtn.addEventListener("touchstart", moveButton);
+
+// Herzen ❤️
+function createHeart(){
+  const heart = document.createElement("div");
+  heart.className = "heart";
+  heart.innerHTML = "❤";
+
+  heart.style.left = Math.random()*100+"vw";
+  heart.style.fontSize = (15+Math.random()*25)+"px";
+
+  document.body.appendChild(heart);
+
+  setTimeout(()=>{
+    heart.remove();
+  },6000);
+}
+
+setInterval(createHeart,400);
+
+// 🎆 Feuerwerk
+const canvas = document.getElementById("fireworks");
+const ctx = canvas.getContext("2d");
+
+function resizeCanvas(){
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+let fireworks = [];
+
+class Firework {
+  constructor(x,y){
+    this.x = x;
+    this.y = y;
+    this.particles = [];
+
+    for(let i=0;i<60;i++){
+      this.particles.push({
+        x:x,y:y,
+        vx:(Math.random()-0.5)*8,
+        vy:(Math.random()-0.5)*8,
+        alpha:1
+      });
+    }
+  }
+
+  update(){
+    this.particles.forEach(p=>{
+      p.x+=p.vx;
+      p.y+=p.vy;
+      p.vy+=0.05;
+      p.alpha-=0.015;
+    });
+
+    this.particles=this.particles.filter(p=>p.alpha>0);
+  }
+
+  draw(){
+    this.particles.forEach(p=>{
+      ctx.fillStyle=`rgba(255,77,109,${p.alpha})`;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,3,0,Math.PI*2);
+      ctx.fill();
+    });
+  }
+}
+
+function startFireworks(){
+
+  for(let i=0;i<6;i++){
+    setTimeout(()=>{
+      const x=Math.random()*canvas.width;
+      const y=Math.random()*canvas.height/2;
+
+      fireworks.push(new Firework(x,y));
+    },i*400);
+  }
+
+  animateFireworks();
+}
+
+function animateFireworks(){
+
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  fireworks.forEach(f=>{
+    f.update();
+    f.draw();
+  });
+
+  fireworks=fireworks.filter(f=>f.particles.length>0);
+
+  if(fireworks.length>0){
+    requestAnimationFrame(animateFireworks);
+  }
+}
+
+</script>
+
+</body>
+</html>
